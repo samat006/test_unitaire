@@ -20,7 +20,7 @@ def compute_kpi(df):
     total = df.count()
     emails_valides = df.filter(F.col("email_valide") == True).count()
     taux_validite = emails_valides / total if total > 0 else 0
-    return total, emails_valides, taux_validite
+    return {"total":total,"Mv": emails_valides,"Mf": taux_validite}
 
 def run(input_path, output_path, min_valid_rate=0.8):
     spark = SparkSession.builder.appName("tp_spark_job").getOrCreate()

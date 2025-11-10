@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
 from jobs.spark_job import load_data, apply_schema, clean_data, compute_kpi
+from pyspark.sql.types import IntegerType
 
 def test_apply_schema():
     spark = SparkSession.builder.master("local[*]").appName("tests").getOrCreate()
@@ -8,7 +9,10 @@ def test_apply_schema():
         ["id", "nom", "email", "date_inscription"]
     )
     df2 = apply_schema(df)
-    assert str(df2.schema["id"].dataType) == "IntegerType"
+
+    assert isinstance(df2.schema["id"].dataType, IntegerType)
+   # assert str(df2.schema["date_inscription"].dataType) == "DateType"
+    assert df2.collect()[0]["date_inscription"].strftime("%Y-%m-%d") == "2025-01-01"
     spark.stop()
 
 def test_clean_data():
@@ -31,8 +35,8 @@ def test_kpi():
          (2, "Bob", "invalidmail", False)],
         ["id", "nom", "email", "email_valide"]
     )
-    total, valid, rate = compute_kpi(df)
-    assert total == 2
-    assert valid == 1
-    assert rate == 0.5
+    kpi = compute_kpi(df)
+    assert kpi['total' ]== 2
+    assert kpi['Mv'] == 1
+    assert kpi['Mf'] == 0.5
     spark.stop()
